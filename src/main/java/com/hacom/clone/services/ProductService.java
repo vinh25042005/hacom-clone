@@ -37,4 +37,29 @@ public class ProductService {
         }
         return productRepository.save(product);
     }
+    public Product updateProduct(Long id, Product productDetails) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm id: " + id));
+        
+        product.setName(productDetails.getName());
+        product.setBrand(productDetails.getBrand());
+        product.setPrice(productDetails.getPrice());
+        product.setStockQuantity(productDetails.getStockQuantity());
+        
+        // Nếu có cập nhật cả danh mục
+        if (productDetails.getCategory() != null) {
+            product.setCategory(productDetails.getCategory());
+        }
+
+        return productRepository.save(product);
+    }
+
+    // Thêm vào trong ProductService.java
+public List<Product> searchByName(String name) {
+    return productRepository.findByNameContainingIgnoreCase(name);
+}
+
+public List<Product> filterByPrice(Double min, Double max) {
+    return productRepository.findByPriceBetween(min, max);
+}
 }
