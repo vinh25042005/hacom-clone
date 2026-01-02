@@ -55,11 +55,17 @@ public class ProductService {
     }
 
     // Thêm vào trong ProductService.java
-public List<Product> searchByName(String name) {
-    return productRepository.findByNameContainingIgnoreCase(name);
-}
+    public List<Product> searchByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
 
-public List<Product> filterByPrice(Double min, Double max) {
-    return productRepository.findByPriceBetween(min, max);
-}
+    public List<Product> filterByPrice(Double min, Double max) {
+        return productRepository.findByPriceBetween(min, max);
+    }
+
+    public List<Product> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
+
+
 }

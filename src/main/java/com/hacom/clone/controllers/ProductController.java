@@ -32,13 +32,16 @@ public class ProductController {
 
    @GetMapping("/search")
     public List<Product> search(@RequestParam String name) {
-        // Thay productRepository thành productService
         return productService.searchByName(name); 
     }
 
     @GetMapping("/filter")
     public List<Product> filterByPrice(@RequestParam Double min, @RequestParam Double max) {
-        // Thay productRepository thành productService
         return productService.filterByPrice(min, max);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public List<Product> getByCategory(@PathVariable Long categoryId) {
+        return productService.getProductsByCategory(categoryId);
     }
 }
