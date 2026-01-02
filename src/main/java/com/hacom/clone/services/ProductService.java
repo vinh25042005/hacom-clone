@@ -13,61 +13,75 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    // Tiêm (Inject) Repository vào để sử dụng
+
     public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
     }
 
-    // Hàm lấy danh sách sản phẩm
+    // Lấy tất cả sản phẩm
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    // Hàm thêm sản phẩm mới (Có kiểm tra nghiệp vụ)
+    // Lấy chi tiết 1 sản phẩm - Đã thêm orElseThrow để làm đẹp lỗi
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sản phẩm có ID " + id + " không tồn tại!"));
+    }
+
+    // Thêm sản phẩm mới
     public Product saveProduct(Product product) {
         if (product.getCategory() != null && product.getCategory().getId() != null) {
-        // Tìm category từ DB dựa trên ID gửi lên
-        Category cat = categoryRepository.findById(product.getCategory().getId())
-                .orElseThrow(() -> new RuntimeException("Category không tồn tại!"));
-        product.setCategory(cat);
-    }
-        // Ví dụ logic nghiệp vụ: Không cho phép lưu sản phẩm giá âm
+            Category cat = categoryRepository.findById(product.getCategory().getId())
+                    .orElseThrow(() -> new RuntimeException("Danh mục (Category) không tồn tại!"));
+            product.setCategory(cat);
+        }
+        
         if (product.getPrice() < 0) {
             throw new RuntimeException("Giá sản phẩm không được nhỏ hơn 0");
         }
         return productRepository.save(product);
     }
 
-    //Cập nhật sản phẩm
+    // Cập nhật sản phẩm
     public Product updateProduct(Long id, Product productDetails) {
+        // Tìm sản phẩm cũ, nếu không thấy sẽ ném lỗi ngay lập tức
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không thể cập nhật! Không tìm thấy sản phẩm ID: " + id));
         
         product.setName(productDetails.getName());
         product.setBrand(productDetails.getBrand());
         product.setPrice(productDetails.getPrice());
         product.setStockQuantity(productDetails.getStockQuantity());
         
-        // Nếu có cập nhật cả danh mục
-        if (productDetails.getCategory() != null) {
-            product.setCategory(productDetails.getCategory());
+        if (productDetails.getCategory() != null && productDetails.getCategory().getId() != null) {
+            Category cat = categoryRepository.findById(productDetails.getCategory().getId())
+                    .orElseThrow(() -> new RuntimeException("Danh mục mới không hợp lệ!"));
+            product.setCategory(cat);
         }
 
         return productRepository.save(product);
     }
 
-    // Thêm vào trong ProductService.java
+    // Xóa sản phẩm
+    public void deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không thể xóa! Sản phẩm ID " + id + " không tồn tại."));
+        productRepository.delete(product);
+    }
+
+    // Tìm kiếm theo tên
     public List<Product> searchByName(String name) {
         return productRepository.findByNameContainingIgnoreCase(name);
     }
 
-    // Lọc sản phẩm theo khoảng giá
+    // Lọc theo khoảng giá
     public List<Product> filterByPrice(Double min, Double max) {
         return productRepository.findByPriceBetween(min, max);
     }
 
-    // Lấy sản phẩm và sắp xếp theo giá
+    // Lấy tất cả và sắp xếp
     public List<Product> getAllProductsSorted(String direction) {
         Sort sort = direction.equalsIgnoreCase("desc") 
                     ? Sort.by("price").descending() 
@@ -75,11 +89,16 @@ public class ProductService {
         return productRepository.findAll(sort);
     }
 
-    // Lấy sản phẩm theo danh mục và sắp xếp theo giá
+    // Lọc theo danh mục và sắp xếp
     public List<Product> getProductsByCategorySorted(Long categoryId, String direction) {
-    Sort sort = direction.equalsIgnoreCase("desc") 
-                ? Sort.by("price").descending() 
-                : Sort.by("price").ascending();
-    return productRepository.findByCategoryId(categoryId, sort);
-}
+        // Kiểm tra xem danh mục có tồn tại không trước khi lọc
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new RuntimeException("Không tìm thấy danh mục có ID: " + categoryId);
+        }
+
+        Sort sort = direction.equalsIgnoreCase("desc") 
+                    ? Sort.by("price").descending() 
+                    : Sort.by("price").ascending();
+        return productRepository.findByCategoryId(categoryId, sort);
+    }
 }
