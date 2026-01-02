@@ -5,6 +5,7 @@ import com.hacom.clone.entities.Product;
 import com.hacom.clone.repositories.CategoryRepository;
 import com.hacom.clone.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 import java.util.List;
 
 @Service
@@ -37,6 +38,8 @@ public class ProductService {
         }
         return productRepository.save(product);
     }
+
+    //Cập nhật sản phẩm
     public Product updateProduct(Long id, Product productDetails) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm id: " + id));
@@ -59,13 +62,24 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(name);
     }
 
+    // Lọc sản phẩm theo khoảng giá
     public List<Product> filterByPrice(Double min, Double max) {
         return productRepository.findByPriceBetween(min, max);
     }
 
-    public List<Product> getProductsByCategory(Long categoryId) {
-        return productRepository.findByCategoryId(categoryId);
+    // Lấy sản phẩm và sắp xếp theo giá
+    public List<Product> getAllProductsSorted(String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc") 
+                    ? Sort.by("price").descending() 
+                    : Sort.by("price").ascending();
+        return productRepository.findAll(sort);
     }
 
-
+    // Lấy sản phẩm theo danh mục và sắp xếp theo giá
+    public List<Product> getProductsByCategorySorted(Long categoryId, String direction) {
+    Sort sort = direction.equalsIgnoreCase("desc") 
+                ? Sort.by("price").descending() 
+                : Sort.by("price").ascending();
+    return productRepository.findByCategoryId(categoryId, sort);
+}
 }

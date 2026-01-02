@@ -4,7 +4,7 @@ import com.hacom.clone.entities.Category;
 import com.hacom.clone.entities.Product;
 
 import java.util.List;
-
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,5 +21,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
 
     //Tìm sản phẩm theo danh mục
-    List<Product> findByCategoryId(Long categoryId);
+    List<Product> findByCategoryId(Long categoryId, Sort sort);
 }

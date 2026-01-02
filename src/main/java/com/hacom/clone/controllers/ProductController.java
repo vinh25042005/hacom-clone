@@ -41,7 +41,12 @@ public class ProductController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<Product> getByCategory(@PathVariable Long categoryId) {
-        return productService.getProductsByCategory(categoryId);
+    public List<Product> getByCategory(@PathVariable Long categoryId, @RequestParam(defaultValue = "asc") String direction) {
+        return productService.getProductsByCategorySorted(categoryId, direction);
+    }
+
+    @GetMapping("/sorted")
+    public List<Product> getProductsSorted(@RequestParam(defaultValue = "asc") String direction) {
+        return productService.getAllProductsSorted(direction);
     }
 }
