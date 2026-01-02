@@ -19,4 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     // Tìm sản phẩm trong khoảng giá
     List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
+
+    //Tìm sản phẩm theo danh mục
+    List<Product> findByCategoryId(Long categoryId);
 }
