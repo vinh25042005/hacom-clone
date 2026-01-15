@@ -30,4 +30,9 @@ public class OrderController {
     public Order getById(@PathVariable Long id) {
         return orderService.getOrderById(id);
     }
+
+    @PatchMapping("/{id}/status")
+    public Order updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return orderService.updateOrderStatus(id, status);
+    }
 }
