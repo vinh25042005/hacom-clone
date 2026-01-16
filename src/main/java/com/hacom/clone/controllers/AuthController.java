@@ -1,5 +1,6 @@
 package com.hacom.clone.controllers;
 
+import com.hacom.clone.entities.User;
 import com.hacom.clone.services.AuthService;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -17,5 +18,11 @@ public class AuthController {
     public Map<String, String> login(@RequestBody Map<String, String> request) {
         String token = authService.login(request.get("username"), request.get("password"));
         return Map.of("token", token);
+    }
+
+        // Thêm vào trong class AuthController
+    @PostMapping("/register")
+    public User register(@RequestBody User user) {
+        return authService.register(user);
     }
 }
