@@ -1,8 +1,11 @@
 package com.hacom.clone.controllers;
 
 import com.hacom.clone.entities.Product;
+import com.hacom.clone.services.FileStorageService;
 import com.hacom.clone.services.ProductService; // Đổi sang gọi Service
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
@@ -11,11 +14,21 @@ public class ProductController {
 
     private final ProductService productService;
 
+    private final FileStorageService fileStorageService;
     // Inject Service vào Controller
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, FileStorageService fileStorageService) {
         this.productService = productService;
+        this.fileStorageService = fileStorageService;
     }
 
+    @PostMapping("/upload-image/{id}")
+    public Product uploadImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        String fileName = fileStorageService.save(file);
+        Product product = productService.getProductById(id);
+        product.setImageUrl(fileName);
+        return productService.saveProduct(product); // Lưu lại sản phẩm đã có ảnh
+    }
+    
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();

@@ -19,4 +19,5 @@ public class Product {
     private Double price;
     private String brand;
     private Integer stockQuantity;
+    private String imageUrl;
 }
